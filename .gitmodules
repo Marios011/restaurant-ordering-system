@@ -1,0 +1,12 @@
+[submodule "order-service"]
+	path = order-service
+	url = https://github.com/Marios011/order-service.git
+[submodule "menu-service"]
+	path = menu-service
+	url = https://github.com/Marios011/menu-service.git
+[submodule "table-service"]
+	path = table-service
+	url = https://github.com/Marios011/table-service.git
+[submodule "api-gateway"]
+	path = api-gateway
+	url = https://github.com/Marios011/api-gateway.git
