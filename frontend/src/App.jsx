@@ -1,21 +1,25 @@
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useState } from 'react'
 import Navbar from './components/Navbar'
-import HomePage from './pages/HomePage'
-import MenuPage from './pages/MenuPage'
-import TablesPage from './pages/TablesPage'
-import OrdersPage from './pages/OrdersPage'
+import DashBoardPage from './pages/DashBoardPage'
+import CreateOrderPage from './pages/CreateOrderPage'
 
 function App() {
+  const [orders, setOrders] = useState([])
+
+  const addOrder = (newOrder) => {
+    setOrders((prevOrders) => [...prevOrders, newOrder])
+  }
+
   return (
-   <BrowserRouter>
-	 <Navbar />		
-     <Routes>
-		<Route path="/" element={<HomePage />} />
-		<Route path="/menu" element={<MenuPage />} />
-		<Route path="/tables" element={<TablesPage />} />
-		<Route path="/orders" element={<OrdersPage />} />
-	 </Routes>	
-	 </BrowserRouter>
+    <BrowserRouter>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<DashBoardPage orders={orders} />} />
+        <Route path="/create-order"
+          element={<CreateOrderPage addOrder={addOrder} />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
