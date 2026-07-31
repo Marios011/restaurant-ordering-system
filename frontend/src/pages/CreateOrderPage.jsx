@@ -2,11 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function CreateOrderPage({ addOrder }) {
+  const [step, setStep]= useState('table')
   const [table, setTable] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [orderItems, setOrderItems] = useState([])
 
   const navigate = useNavigate()
+  
+      
+  const tables=['1','2','3','4','5','6','7']
 
   const menuData = {
     Starters: [
@@ -26,7 +30,14 @@ function CreateOrderPage({ addOrder }) {
     ],
   }
   
+
+  
   const categories = Object.keys(menuData)
+  
+  const handleSelectTable = (tableName)=>{
+	  setTable(tableName)
+	  setStep('menu')
+  }
 
   const handleAddItem = (itemToAdd) => {
     const existingItem = orderItems.find((item) => item.name === itemToAdd.name)
@@ -45,11 +56,68 @@ function CreateOrderPage({ addOrder }) {
 				name: itemToAdd.name,
 				price: itemToAdd.price,
 				quantity: 1,
+				note: '',
 			},
 		])
 	}
 	
   }
+  
+  
+  const increaseQuantity=(itemName)=>{
+	  const updatedItems=orderItems.map((item)=>
+		item.name===itemName
+		?{...item, quantity: item.quantity+1}
+		: item
+	  )
+	  setOrderItems(updatedItems)
+  }
+  
+  
+  const updateItemNote=(itemName, newNote)=>{
+	  const updatedItems=orderItems.map((item)=>
+		item.name===itemName
+		  ?{...item, note: newNote}
+		  :item
+	  )
+	  setOrderItems(updatedItems)
+  }
+  
+  
+  
+  const decreaseQuantity = (itemName)=>{
+	  const updatedItems=orderItems
+		.map((item) =>
+			item.name === itemName
+			?{...item, quantity: item.quantity-1}
+			:item
+		)
+		
+		.filter((item) => item.quantity>0)
+	setOrderItems(updatedItems)
+	
+  }
+  
+  
+  const updateQuantity=(itemName, newQuantity) =>{
+	  const parsedQuantity=Number(newQuantity)
+	  
+	  if(parsedQuantity<=0|| isNaN(parsedQuantity)){
+		  setOrderItems((prevItems)=>
+			prevItems.filter((item)=>item.name !== itemName)
+		  )
+		return  
+	  }
+	  
+	  const updatedItems=orderItems.map((item)=>
+		item.name===itemName
+		  ?{...item, quantity: parsedQuantity}
+		  :item
+	  )
+	  
+	  setOrderItems(updatedItems)
+  }
+  
 
   const handleSaveOrder = () => {
     if (!table || orderItems.length === 0) return
@@ -73,61 +141,85 @@ function CreateOrderPage({ addOrder }) {
 
   return (
     <div className="container mt-4">
-      <h1>Create Order</h1>
+      {step === 'table' && (
+        <>
+          <h1 className="mb-4">Select Table</h1>
 
-      <div className="mb-3">
-        <label className="form-label">Table</label>
-        <select
-          className="form-select"
-          value={table}
-          onChange={(e) => setTable(e.target.value)}
-          required
-        >
-          <option value="">Select a table</option>
-          <option value="Table 1">Table 1</option>
-          <option value="Table 2">Table 2</option>
-          <option value="Table 3">Table 3</option>
-          <option value="Table 4">Table 4</option>
-        </select>
-      </div>
-
-      <div className="mb-4">
-        <h3>Categories</h3>
-		<div className="d-flex gap-2 flex-wrap">
-		 {categories.map((category)=>(
-			<button key={category} type="button" className={`btn ${
-				selectedCategory === category
-				? 'btn-primary'
-				: 'btn-outline-primary'
-			}`}
-			onClick={() => setSelectedCategory(category)}
-			>
-			{category}
-			</button>
-		 ))}
-		</div>
-      </div>
-
-      <div className="mb-4">
-        <h3>Items</h3>
-        {!selectedCategory ? (
-          <p>Select a category first.</p>
-        ) : (
-          <div className="list-group">
-            {menuData[selectedCategory].map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className="list-group-item list-group-item-action d-flex justify-content-between"
-                onClick={() => handleAddItem(item)}
-              >
-                <span>{item.name}</span>
-                <span>${item.price.toFixed(2)}</span>
-              </button>
+          <div className="row g-3">
+            {tables.map((tableName) => (
+              <div key={tableName} className="col-6 col-md-4">
+                <button
+                  type="button"
+                  className="btn btn-outline-primary w-100 py-4"
+                  onClick={() => handleSelectTable(tableName)}
+                >
+                  {tableName}
+                </button>
+              </div>
             ))}
           </div>
-        )}
-      </div>
+        </>
+      )}
+
+      {step === 'menu' && (
+        <>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 className="mb-1">Create Order</h1>
+              <p className="mb-0">
+                <strong>Selected Table:</strong> {table}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => setStep('table')}
+            >
+              Change Table
+            </button>
+          </div>
+
+          <div className="mb-4">
+            <h3>Categories</h3>
+            <div className="d-flex gap-2 flex-wrap">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  className={`btn ${
+                    selectedCategory === category
+                      ? 'btn-primary'
+                      : 'btn-outline-primary'
+                  }`}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <h3>Items</h3>
+            {!selectedCategory ? (
+              <p>Select a category first.</p>
+            ) : (
+              <div className="list-group">
+                {menuData[selectedCategory].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="list-group-item list-group-item-action d-flex justify-content-between"
+                    onClick={() => handleAddItem(item)}
+                  >
+                    <span>{item.name}</span>
+                    <span>€{item.price.toFixed(2)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
 
       <div className="mb-4">
@@ -142,10 +234,33 @@ function CreateOrderPage({ addOrder }) {
                 key={index}
                 className="list-group-item d-flex justify-content-between"
               >
-                <span>
-                  {item.name} x {item.quantity}
-                </span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+			  
+			  <div className="flex-grow-1 me-3">
+                  <strong>{item.name}</strong>
+                  
+				  <input
+					type="text"
+					className="form-control form-control-sm"
+					placeholder="Add note"
+					value={item.note || ''}
+					onChange={(e) => updateItemNote(item.name, e.target.value)}
+				  />
+                </div>
+
+                <div className="d-flex align-items-center gap-2">
+
+                  <input
+					type="number"
+					min="1"
+					className="form-control form-control-sm text-center"
+					style={{ width: '70px' }}
+					value={item.quantity}
+					onChange={(e) => updateQuantity(item.name, e.target.value)}
+				/>
+
+                  
+                <span>€{(item.price * item.quantity).toFixed(2)}</span>
+				</div>
               </li>
             ))}
           </ul>
@@ -154,7 +269,7 @@ function CreateOrderPage({ addOrder }) {
 	  
 	  {orderItems.length>0 &&(
 		<h4 className="mb-4">
-			Total: $
+			€
 			{orderItems
 				.reduce((sum,item) => sum+item.price*item.quantity,0)
 				.toFixed(2)
@@ -164,6 +279,8 @@ function CreateOrderPage({ addOrder }) {
       <button className="btn btn-success" onClick={handleSaveOrder}>
         Save Order
       </button>
+	  </>
+	  )}
     </div>
   )
 }

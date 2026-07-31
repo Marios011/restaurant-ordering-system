@@ -9,7 +9,7 @@ function Navbar() {
         </Link>
 
         <Link className="btn btn-outline-light" to="/create-order">
-          Create Order
+          +
         </Link>
 		
 
