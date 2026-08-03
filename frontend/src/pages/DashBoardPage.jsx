@@ -1,19 +1,24 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 
-function DashboardPage({ orders, deleteOrder, payOrder, removeItemFromOrder }) {
+function DashboardPage({ orders, deleteOrder, payOrder, removeItemFromOrder, logout }) {
   
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false)
   const [selectedItemIndex, setSelectedItemIndex] = useState(null)
+  
+  const openOrders=orders.filter((order)=>order.status==='Open')
 
   useEffect(() => {
-    if (orders.length > 0) {
-      const stillExists = orders.find((order) => order.id === selectedOrder?.id)
+	 
+	 
+    if (openOrders.length > 0) {
+      const stillExists = openOrders.find((order) => order.id === selectedOrder?.id)
 
       if (stillExists) {
         setSelectedOrder(stillExists)
       } else {
-        setSelectedOrder(orders[0])
+        setSelectedOrder(openOrders[0])
       }
     } else {
       setSelectedOrder(null)
@@ -22,7 +27,6 @@ function DashboardPage({ orders, deleteOrder, payOrder, removeItemFromOrder }) {
   
   
   
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false)
   
   
   return (
@@ -31,9 +35,19 @@ function DashboardPage({ orders, deleteOrder, payOrder, removeItemFromOrder }) {
         <div className="col-md-4 border-end">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2 className="btn btn-outline-secondary">Open Orders</h2>
+			<button type="button" className="btn btn-outline-dark btn-sm" onClick={() => {
+               const confirmed = window.confirm('Are you sure you want to logout?')
+
+			   if (confirmed) {
+                  logout()
+                }
+			  }}
+			>
+				Logout
+			</button>
           </div>
 
-          {orders.length === 0 ? (
+          {openOrders.length === 0 ? (
             <div className="mt-4">
               <p>No open orders</p>
               <Link to="/create-order" className="btn btn-outline-primary">
@@ -42,14 +56,18 @@ function DashboardPage({ orders, deleteOrder, payOrder, removeItemFromOrder }) {
             </div>
           ) : (
             <div className="list-group">
-              {orders.map((order) => (
+              {openOrders.map((order) => (
                 <button
                   key={order.id}
                   type="button"
                   className={`list-group-item list-group-item-action ${
                     selectedOrder?.id === order.id ? 'active' : ''
                   }`}
-                  onClick={() => setSelectedOrder(order)}
+                  onClick={() => {
+					setSelectedOrder(order)
+					setShowPaymentOptions(false)
+					setSelectedItemIndex(null)
+				  }}
                 >
                   <div className="d-flex justify-content-between">
                     <strong>{order.table}</strong>
