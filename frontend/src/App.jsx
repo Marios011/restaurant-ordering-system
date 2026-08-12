@@ -5,16 +5,20 @@ import DashBoardPage from './pages/DashBoardPage'
 import CreateOrderPage from './pages/CreateOrderPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
+import {fetchOrders, createOrder} from './services/orderService'
 
 function App() {
 	
-  const [orders, setOrders] = useState(()=>{
-	  const savedOrders=localStorage.getItem('orders')
-	  return savedOrders ? JSON.parse(savedOrders) : []
-  })
+  const [orders, setOrders] = useState([])
   
-   const deleteOrder=(orderId)=>{
-	  setOrders((prevOrders) => prevOrders.filter((order)=> order.id !== orderId))
+   const deleteOrder= async(orderId)=>{
+	  try{
+		  await deleteOrderById(orderId)
+		  const updatedOrders = await fetchOrders()
+		  setOrders(updatedOrders)
+	  }catch(error){
+		  console.error('error deleting order:', error)
+	  }
    }
    
    
@@ -24,18 +28,31 @@ function App() {
    })
   
   
-  useEffect(()=>{
-	  localStorage.setItem('orders', JSON.stringify(orders))
-  }, [orders])
+
   
   useEffect(()=>{
-	  localStorage.setItem('user', JSON.stringify(user))
-  }, [user])
+	  const loadOrders = async () =>{
+		  try{
+			  const data = await fetchOrders()
+			  setOrders(data)
+		  }catch(error){
+			  console.error('Error fetching orders:', error)
+		  }
+	  }
+	  
+	  loadOrders()
+	  
+  }, [])
   
   
   
-  const addOrder = (newOrder) => {
-    setOrders((prevOrders) => [...prevOrders, newOrder])
+  const addOrder = async(orderData, menuItemId) => {
+    try{
+		const createdOrder=await createOrder(orderData, menuItemId)
+		setOrders((prevOrders) => [...prevOrders, createdOrder])
+	}catch(error){
+		console.error('Error creating order:', error)
+	}
   }
   
   
