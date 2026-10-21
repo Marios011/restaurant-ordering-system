@@ -38,11 +38,13 @@ function CreateOrderPage({ addOrder }) {
   const categories = Object.keys(menuData)
   
   const handleSelectTable = (tableName)=>{
+	  setSaveError('')
 	  setTable(tableName)
 	  setStep('menu')
   }
 
   const handleAddItem = (itemToAdd) => {
+    setSaveError('')
     const existingItem = orderItems.find((item) => item.name === itemToAdd.name)
 	
 	if(existingItem){
@@ -68,6 +70,7 @@ function CreateOrderPage({ addOrder }) {
   
   
   const increaseQuantity=(itemName)=>{
+	  setSaveError('')
 	  const updatedItems=orderItems.map((item)=>
 		item.name===itemName
 		?{...item, quantity: item.quantity+1}
@@ -78,6 +81,7 @@ function CreateOrderPage({ addOrder }) {
   
   
   const updateItemNote=(itemName, newNote)=>{
+	  setSaveError('')
 	  const updatedItems=orderItems.map((item)=>
 		item.name===itemName
 		  ?{...item, note: newNote}
@@ -89,6 +93,7 @@ function CreateOrderPage({ addOrder }) {
   
   
   const decreaseQuantity = (itemName)=>{
+	  setSaveError('')
 	  const updatedItems=orderItems
 		.map((item) =>
 			item.name === itemName
@@ -103,6 +108,7 @@ function CreateOrderPage({ addOrder }) {
   
   
   const updateQuantity=(itemName, newQuantity) =>{
+	  setSaveError('')
 	  const parsedQuantity=Number(newQuantity)
 	  
 	  if(parsedQuantity<=0|| isNaN(parsedQuantity)){
