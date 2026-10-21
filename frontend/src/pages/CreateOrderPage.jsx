@@ -122,6 +122,7 @@ function CreateOrderPage({ addOrder }) {
   
 
   const handleSaveOrder = async () => {
+    if (isSaving) return
     if (!table || orderItems.length === 0) return
 
     const total = orderItems.reduce(
@@ -144,7 +145,8 @@ function CreateOrderPage({ addOrder }) {
       await addOrder(newOrder)
       navigate('/')
     } catch (error) {
-      setSaveError(error.message || 'Unable to save the order. Please try again.')
+      console.error('Error creating order:', error)
+      setSaveError('Unable to save the order. Please try again.')
     } finally {
       setIsSaving(false)
     }

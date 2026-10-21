@@ -27,7 +27,15 @@ export async function createOrder(orderData){
 	}
 	
 	const responseBody = await response.text()
-	const createdOrder = responseBody ? JSON.parse(responseBody) : {}
+	let createdOrder = {}
+
+	if (responseBody) {
+		try {
+			createdOrder = JSON.parse(responseBody)
+		} catch {
+			createdOrder = {}
+		}
+	}
 
 	return { ...orderData, ...createdOrder }
 }
