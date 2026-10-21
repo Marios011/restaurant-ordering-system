@@ -47,9 +47,11 @@ function App() {
   
   
   const addOrder = async(orderData) => {
-	await createOrder(orderData)
-	const updatedOrders = await fetchOrders()
-	setOrders(updatedOrders)
+	const createdOrder=await createOrder(orderData)
+	if (!createdOrder?.id) {
+		throw new Error('The server did not confirm the saved order.')
+	}
+	setOrders((prevOrders) => [...prevOrders, { ...orderData, ...createdOrder }])
   }
   
   

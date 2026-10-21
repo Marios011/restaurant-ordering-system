@@ -25,6 +25,8 @@ export async function createOrder(orderData){
 	if(!response.ok){
 		throw new Error('Failed to create order')
 	}
+
+	return response.json()
 }
 
 /*
