@@ -31,9 +31,14 @@ export async function createOrder(orderData){
 
 	if (responseBody) {
 		try {
-			createdOrder = JSON.parse(responseBody)
+			const parsedOrder = JSON.parse(responseBody)
+			if (parsedOrder && typeof parsedOrder === 'object' && !Array.isArray(parsedOrder)) {
+				createdOrder = parsedOrder
+			} else {
+				console.warn('Unexpected order response; using submitted order data.')
+			}
 		} catch {
-			createdOrder = {}
+			console.warn('Unable to parse order response; using submitted order data.')
 		}
 	}
 

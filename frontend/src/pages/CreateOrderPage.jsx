@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function CreateOrderPage({ addOrder }) {
@@ -8,6 +8,7 @@ function CreateOrderPage({ addOrder }) {
   const [orderItems, setOrderItems] = useState([])
   const [saveError, setSaveError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const isSavingRef = useRef(false)
 
   const navigate = useNavigate()
   
@@ -122,7 +123,7 @@ function CreateOrderPage({ addOrder }) {
   
 
   const handleSaveOrder = async () => {
-    if (isSaving) return
+    if (isSavingRef.current) return
     if (!table || orderItems.length === 0) return
 
     const total = orderItems.reduce(
@@ -139,6 +140,7 @@ function CreateOrderPage({ addOrder }) {
     }
 
     setSaveError('')
+    isSavingRef.current = true
     setIsSaving(true)
 
     try {
@@ -148,6 +150,7 @@ function CreateOrderPage({ addOrder }) {
       console.error('Error creating order:', error)
       setSaveError('Unable to save the order. Please try again.')
     } finally {
+      isSavingRef.current = false
       setIsSaving(false)
     }
   }
