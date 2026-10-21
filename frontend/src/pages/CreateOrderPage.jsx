@@ -6,6 +6,8 @@ function CreateOrderPage({ addOrder }) {
   const [table, setTable] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [orderItems, setOrderItems] = useState([])
+  const [saveError, setSaveError] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const navigate = useNavigate()
   
@@ -119,7 +121,7 @@ function CreateOrderPage({ addOrder }) {
   }
   
 
-  const handleSaveOrder = () => {
+  const handleSaveOrder = async () => {
     if (!table || orderItems.length === 0) return
 
     const total = orderItems.reduce(
@@ -135,8 +137,17 @@ function CreateOrderPage({ addOrder }) {
       status: 'Open',
     }
 
-    addOrder(newOrder)
-    navigate('/')
+    setSaveError('')
+    setIsSaving(true)
+
+    try {
+      await addOrder(newOrder)
+      navigate('/')
+    } catch (error) {
+      setSaveError(error.message || 'Unable to save the order. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -276,8 +287,10 @@ function CreateOrderPage({ addOrder }) {
 			}</h4>
 	  )}
 
-      <button className="btn btn-success" onClick={handleSaveOrder}>
-        Save Order
+      {saveError && <div className="alert alert-danger" role="alert">{saveError}</div>}
+
+      <button className="btn btn-success" onClick={handleSaveOrder} disabled={isSaving}>
+        {isSaving ? 'Saving...' : 'Save Order'}
       </button>
 	  </>
 	  )}

@@ -47,12 +47,8 @@ function App() {
   
   
   const addOrder = async(orderData, menuItemId) => {
-    try{
-		const createdOrder=await createOrder(orderData, menuItemId)
-		setOrders((prevOrders) => [...prevOrders, createdOrder])
-	}catch(error){
-		console.error('Error creating order:', error)
-	}
+	const createdOrder=await createOrder(orderData, menuItemId)
+	setOrders((prevOrders) => [...prevOrders, createdOrder])
   }
   
   

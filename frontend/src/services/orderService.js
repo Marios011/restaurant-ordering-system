@@ -26,7 +26,10 @@ export async function createOrder(orderData){
 		throw new Error('Failed to create order')
 	}
 	
-	return response.json()
+	const responseBody = await response.text()
+	const createdOrder = responseBody ? JSON.parse(responseBody) : {}
+
+	return { ...orderData, ...createdOrder }
 }
 
 /*
