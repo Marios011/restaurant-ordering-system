@@ -153,7 +153,8 @@ function CreateOrderPage({ addOrder }) {
       navigate('/')
     } catch (error) {
       console.error('Error creating order:', error)
-      setSaveError('Unable to save the order. Please try again.')
+      const status = error?.message?.match(/HTTP \d{3}/)?.[0]
+      setSaveError(`Unable to save the order${status ? ` (${status})` : ''}. Please try again.`)
     } finally {
       isSavingRef.current = false
       setIsSaving(false)
