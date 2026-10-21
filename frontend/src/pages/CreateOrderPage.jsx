@@ -132,7 +132,6 @@ function CreateOrderPage({ addOrder }) {
     )
 
     const newOrder = {
-      id: Date.now(),
       table,
       items: orderItems,
       total,

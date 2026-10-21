@@ -46,9 +46,10 @@ function App() {
   
   
   
-  const addOrder = async(orderData, menuItemId) => {
-	const createdOrder=await createOrder(orderData, menuItemId)
-	setOrders((prevOrders) => [...prevOrders, createdOrder])
+  const addOrder = async(orderData) => {
+	await createOrder(orderData)
+	const updatedOrders = await fetchOrders()
+	setOrders(updatedOrders)
   }
   
   

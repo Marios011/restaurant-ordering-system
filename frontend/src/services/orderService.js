@@ -25,24 +25,6 @@ export async function createOrder(orderData){
 	if(!response.ok){
 		throw new Error('Failed to create order')
 	}
-	
-	const responseBody = await response.text()
-	let createdOrder = {}
-
-	if (responseBody) {
-		try {
-			const parsedOrder = JSON.parse(responseBody)
-			if (parsedOrder && typeof parsedOrder === 'object' && !Array.isArray(parsedOrder)) {
-				createdOrder = parsedOrder
-			} else {
-				console.warn('Unexpected order response; using submitted order data.')
-			}
-		} catch {
-			console.warn('Unable to parse order response; using submitted order data.')
-		}
-	}
-
-	return { ...orderData, ...createdOrder }
 }
 
 /*
