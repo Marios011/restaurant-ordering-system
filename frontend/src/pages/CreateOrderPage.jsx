@@ -1,9 +1,13 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { fetchTables } from '../services/tableService'
 
 function CreateOrderPage({ addOrder }) {
   const [step, setStep]= useState('table')
-  const [table, setTable] = useState('')
+  const [selectedTable, setSelectedTable] = useState(null)
+  const [tables, setTables] = useState([])
+  const [tablesError, setTablesError] = useState('')
+  const [isLoadingTables, setIsLoadingTables] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [orderItems, setOrderItems] = useState([])
   const [saveError, setSaveError] = useState('')
@@ -11,9 +15,21 @@ function CreateOrderPage({ addOrder }) {
   const isSavingRef = useRef(false)
 
   const navigate = useNavigate()
-  
-      
-  const tables=['1','2','3','4','5','6','7']
+
+  useEffect(() => {
+    const loadTables = async () => {
+      try {
+        setTables(await fetchTables())
+      } catch (error) {
+        console.error('Error fetching tables:', error)
+        setTablesError('Unable to load tables. Please try again.')
+      } finally {
+        setIsLoadingTables(false)
+      }
+    }
+
+    loadTables()
+  }, [])
 
   const menuData = {
     Starters: [
@@ -37,9 +53,9 @@ function CreateOrderPage({ addOrder }) {
   
   const categories = Object.keys(menuData)
   
-  const handleSelectTable = (tableName)=>{
+  const handleSelectTable = (tableItem) => {
 	  setSaveError('')
-	  setTable(tableName)
+	  setSelectedTable(tableItem)
 	  setStep('menu')
   }
 
@@ -130,7 +146,7 @@ function CreateOrderPage({ addOrder }) {
 
   const handleSaveOrder = async () => {
     if (isSavingRef.current) return
-    if (!table || orderItems.length === 0) return
+    if (!selectedTable || orderItems.length === 0) return
 
     const total = orderItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -138,7 +154,7 @@ function CreateOrderPage({ addOrder }) {
     )
 
     const newOrder = {
-      table,
+      tableId: selectedTable.id,
       items: orderItems,
       total,
       status: 'Open',
@@ -167,15 +183,23 @@ function CreateOrderPage({ addOrder }) {
         <>
           <h1 className="mb-4">Select Table</h1>
 
+          {isLoadingTables && <p>Loading tables...</p>}
+          {tablesError && <div className="alert alert-danger" role="alert">{tablesError}</div>}
+          {!isLoadingTables && !tablesError && tables.length === 0 && (
+            <p>No tables found. Add tables before creating an order.</p>
+          )}
+
           <div className="row g-3">
-            {tables.map((tableName) => (
-              <div key={tableName} className="col-6 col-md-4">
+            {tables.map((tableItem) => (
+              <div key={tableItem.id} className="col-6 col-md-4">
                 <button
                   type="button"
                   className="btn btn-outline-primary w-100 py-4"
-                  onClick={() => handleSelectTable(tableName)}
+                  disabled={tableItem.isOccupied}
+                  onClick={() => handleSelectTable(tableItem)}
                 >
-                  {tableName}
+                  Table {tableItem.tableNumber}
+                  {tableItem.isOccupied ? ' (Occupied)' : ''}
                 </button>
               </div>
             ))}
@@ -189,7 +213,7 @@ function CreateOrderPage({ addOrder }) {
             <div>
               <h1 className="mb-1">Create Order</h1>
               <p className="mb-0">
-                <strong>Selected Table:</strong> {table}
+                <strong>Selected Table:</strong> {selectedTable?.tableNumber}
               </p>
             </div>
 
