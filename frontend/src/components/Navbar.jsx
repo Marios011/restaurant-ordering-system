@@ -29,8 +29,13 @@ function Navbar({ user, logout }) {
             </Link>
           </>
         )}
+		
 
-
+        {user && (
+          <button className="btn btn-outline-light" onClick={handleLogout}>
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   )

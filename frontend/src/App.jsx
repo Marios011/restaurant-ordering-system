@@ -5,7 +5,8 @@ import DashBoardPage from './pages/DashBoardPage'
 import CreateOrderPage from './pages/CreateOrderPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
-import {fetchOrders, createOrder} from './services/orderService'
+import TablesPage from './pages/TablesPage'
+import {fetchOrders, createOrder, deleteOrderById} from './services/orderService'
 
 function App() {
 	
@@ -45,21 +46,6 @@ function App() {
   }, [])
   
   
-  useEffect(()=> {
-  
-	const loadTables = async() => {
-		try{
-			detTables(await fetchTables())
-		}catch(error){
-			console.error('Error fetching tables:', error)
-			setTablesError('Unable to load tables. Try again.')
-		}finally{
-			setIsLoadingTables
-		}	
-	}
-	
-	loadTables()
-  }, [])
   
   
   
@@ -69,7 +55,6 @@ function App() {
 		throw new Error('The server did not confirm the saved order.')
 	}
 		setOrders((prevOrders)=> [...prevOrders, {...orderData, ...createdOrder}])
-	}
   }
   
   
@@ -109,14 +94,19 @@ function App() {
 }
 
 
+const saveUser=(newUser)=>{
+	localStorage.setItem('user', JSON.stringify(newUser))
+	setUser(newUser)
+}
+
 const login=(username, password)=>{
 	if(username==='admin' && password==='1234'){
-		setUser({username: 'admin', role: 'admin'})
+		saveUser({username: 'admin', role: 'admin'})
 		return true
 	}
 	
 	if(username==='waiter' && password==='1234'){
-		setUser({username: 'waiter', role: 'waiter'})
+		saveUser({username: 'waiter', role: 'waiter'})
 		return true
 	}
 	return false
@@ -124,14 +114,16 @@ const login=(username, password)=>{
 
 
 const logout=()=>{
+	localStorage.removeItem('user')
 	setUser(null)
 }
   
 
   return (
     <BrowserRouter>
-      <Navbar user={user} />
+      <Navbar user={user} logout={logout} />
       <Routes>
+		<Route path="/tables" element={user ? <TablesPage /> : <Navigate to="/login" />} />
 	    <Route path="/login" element={user ? (<Navigate to={user.role==='admin' ? '/admin' : '/'} /> 
 		    ):(
 			  <LoginPage onLogin={login} />
@@ -164,6 +156,6 @@ const logout=()=>{
       </Routes>
     </BrowserRouter>
   )
-
+}
 
 export default App

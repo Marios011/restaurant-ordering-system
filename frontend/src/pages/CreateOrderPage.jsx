@@ -6,7 +6,7 @@ function CreateOrderPage({ addOrder }) {
   const [step, setStep]= useState('table')
   const [selectedTable, setSelectedTable] = useState(null)
   const [tables, setTables] = useState([])
-  const [tablesError, setTablesErrors] = useState('')
+  const [tablesError, setTablesError] = useState('')
   const [isLoadingTables, setIsLoadingTables] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [orderItems, setOrderItems] = useState([])

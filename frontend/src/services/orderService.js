@@ -52,6 +52,7 @@ export async function updateOrderPayment(orderId, paymentMethod){
 	return response.json()
 }
 
+*/
 
 export async function deleteOrderById(orderId){
 	const response = await fetch(`${BASE_URL}/${orderId}`, {
@@ -62,5 +63,3 @@ export async function deleteOrderById(orderId){
 		throw new Error('Failed to delete order')
 	}
 }
-
-*/

@@ -6,7 +6,7 @@ export async function fetchTables(){
 	
 	if(!response.ok){
 		
-		throw new Error(`Failed to fetch tables (HTTP &{response.status})`)
+		throw new Error(`Failed to fetch tables (HTTP ${response.status})`)
 		
 	}
 	
