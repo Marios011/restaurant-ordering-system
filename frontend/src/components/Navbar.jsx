@@ -30,6 +30,11 @@ function Navbar({ user, logout }) {
           </>
         )}
 
+        {user && (
+          <Link className="btn btn-outline-light" to="/tables">
+            Tables
+          </Link>
+        )}
 
       </div>
     </nav>

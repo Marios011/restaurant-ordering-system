@@ -5,6 +5,7 @@ import DashBoardPage from './pages/DashBoardPage'
 import CreateOrderPage from './pages/CreateOrderPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
+import TablesPage from './pages/TablesPage'
 import {fetchOrders, createOrder} from './services/orderService'
 
 function App() {
@@ -140,6 +141,7 @@ const logout=()=>{
 		  )
 		 }
 		/>
+		<Route path="/tables" element={user ? <TablesPage /> : <Navigate to="/login" />} />
 
 		<Route path="*" element={<Navigate to={user ? (user.role==='admin' ? '/admin' : '/') : '/login'} />} />
 		
