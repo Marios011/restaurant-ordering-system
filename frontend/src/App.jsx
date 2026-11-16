@@ -54,7 +54,7 @@ function App() {
     if(!createdOrder?.id){
 		throw new Error('The server did not confirm the saved order.')
 	}
-		setOrders((prevOrders)=> [...prevOrders, {...orderData, ...createdOrder}])
+		setOrders((prevOrders)=> [...prevOrders, {...orderData, ...createdOrder, items: orderData.items}])
   }
   
   

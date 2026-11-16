@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {fetchTables} from '../services/tableService'
+import {fetchProducts} from '../services/menuService'
 
 function CreateOrderPage({ addOrder }) {
   const [step, setStep]= useState('table')
@@ -8,6 +9,8 @@ function CreateOrderPage({ addOrder }) {
   const [tables, setTables] = useState([])
   const [tablesError, setTablesError] = useState('')
   const [isLoadingTables, setIsLoadingTables] = useState(true)
+  const [menuData, setMenuData] = useState({})
+  const [menuError, setMenuError] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [orderItems, setOrderItems] = useState([])
   const [saveError, setSaveError] = useState('')
@@ -35,26 +38,27 @@ function CreateOrderPage({ addOrder }) {
 	loadTables()
   }, [])
 
-  const menuData = {
-    Starters: [
-      { id: 1, name: 'Greek Salad', price: 8.0 },
-      { id: 2, name: 'Caesar Salad', price: 7.25 },
-      { id: 3, name: 'Bruschetta', price: 6.5 },
-    ],
-    Main: [
-      { id: 4, name: 'Margherita Pizza', price: 8.99 },
-      { id: 5, name: 'Cheeseburger', price: 10.5 },
-      { id: 6, name: 'Spaghetti Bolognese', price: 12.0 },
-    ],
-    Drinks: [
-      { id: 7, name: 'Cola', price: 2.5 },
-      { id: 8, name: 'Water', price: 1.5 },
-      { id: 9, name: 'Orange Juice', price: 3.0 },
-    ],
-  }
-  
+  useEffect(()=> {
+	const loadMenu = async() => {
+		try{
+			const products = await fetchProducts()
+			const grouped = {}
+			products
+				.filter((product) => product.isAvailable)
+				.forEach((product) => {
+					const category = product.category || 'Other'
+					grouped[category] = [...(grouped[category] || []), product]
+				})
+			setMenuData(grouped)
+		}catch(error){
+			console.error('Error fetching menu:', error)
+			setMenuError('Unable to load menu. Please try again.')
+		}
+	}
 
-  
+	loadMenu()
+  }, [])
+
   const categories = Object.keys(menuData)
   
   const handleSelectTable = (tableItem)=>{
@@ -65,11 +69,11 @@ function CreateOrderPage({ addOrder }) {
 
   const handleAddItem = (itemToAdd) => {
 	setSaveError('')
-    const existingItem = orderItems.find((item) => item.name === itemToAdd.name)
+    const existingItem = orderItems.find((item) => item.menuItemId === itemToAdd.id)
 	
 	if(existingItem){
 		const updatedItems = orderItems.map((item)=>
-			item.name===itemToAdd.name
+			item.menuItemId===itemToAdd.id
 			?{...item, quantity: item.quantity + 1}
 			: item
 		)
@@ -78,6 +82,7 @@ function CreateOrderPage({ addOrder }) {
 		setOrderItems([
 			...orderItems,
 			{
+				menuItemId: itemToAdd.id,
 				name: itemToAdd.name,
 				price: itemToAdd.price,
 				quantity: 1,
@@ -253,7 +258,9 @@ function CreateOrderPage({ addOrder }) {
 
           <div className="mb-4">
             <h3>Items</h3>
-            {!selectedCategory ? (
+            {menuError ? (
+              <div className="alert alert-danger" role="alert">{menuError}</div>
+            ) : !selectedCategory ? (
               <p>Select a category first.</p>
             ) : (
               <div className="list-group">
@@ -265,7 +272,7 @@ function CreateOrderPage({ addOrder }) {
                     onClick={() => handleAddItem(item)}
                   >
                     <span>{item.name}</span>
-                    <span>€{item.price.toFixed(2)}</span>
+                    <span>â‚¬{item.price.toFixed(2)}</span>
                   </button>
                 ))}
               </div>
@@ -310,7 +317,7 @@ function CreateOrderPage({ addOrder }) {
 				/>
 
                   
-                <span>€{(item.price * item.quantity).toFixed(2)}</span>
+                <span>â‚¬{(item.price * item.quantity).toFixed(2)}</span>
 				</div>
               </li>
             ))}
@@ -320,7 +327,7 @@ function CreateOrderPage({ addOrder }) {
 	  
 	  {orderItems.length>0 &&(
 		<h4 className="mb-4">
-			€
+			â‚¬
 			{orderItems
 				.reduce((sum,item) => sum+item.price*item.quantity,0)
 				.toFixed(2)
