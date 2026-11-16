@@ -6,7 +6,7 @@ CREATE DATABASE IF NOT EXISTS order_db;
 
 USE menu_db;
 
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE IF NOT EXISTS menu_db (
                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                         name VARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 USE tables_db;
 
-CREATE TABLE IF NOT EXISTS tables (
+CREATE TABLE IF NOT EXISTS tables_db (
                                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                       table_number INT NOT NULL,
                                       capacity INT NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS tables (
 
 USE order_db;
 
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS order_db (
                                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                       table_id BIGINT NOT NULL,
                                       status VARCHAR(50) DEFAULT 'pending',

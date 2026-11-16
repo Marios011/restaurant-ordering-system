@@ -45,13 +45,30 @@ function App() {
   }, [])
   
   
+  useEffect(()=> {
   
-  const addOrder = async(orderData, menuItemId) => {
-    try{
-		const createdOrder=await createOrder(orderData, menuItemId)
-		setOrders((prevOrders) => [...prevOrders, createdOrder])
-	}catch(error){
-		console.error('Error creating order:', error)
+	const loadTables = async() => {
+		try{
+			detTables(await fetchTables())
+		}catch(error){
+			console.error('Error fetching tables:', error)
+			setTablesError('Unable to load tables. Try again.')
+		}finally{
+			setIsLoadingTables
+		}	
+	}
+	
+	loadTables()
+  }, [])
+  
+  
+  
+  const addOrder = async(orderData) => {
+	  const createdOrder = await createOrder(orderData)
+    if(!createdOrder?.id){
+		throw new Error('The server did not confirm the saved order.')
+	}
+		setOrders((prevOrders)=> [...prevOrders, {...orderData, ...createdOrder}])
 	}
   }
   
@@ -147,6 +164,6 @@ const logout=()=>{
       </Routes>
     </BrowserRouter>
   )
-}
+
 
 export default App
