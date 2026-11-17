@@ -43,7 +43,6 @@ function CreateOrderPage({ addOrder }) {
 			const products = await fetchProducts()
 			const grouped = {}
 			products
-				.filter((product) => product.isAvailable)
 				.forEach((product) => {
 					const category = product.category || 'Other'
 					grouped[category] = [...(grouped[category] || []), product]
@@ -271,7 +270,7 @@ function CreateOrderPage({ addOrder }) {
                     onClick={() => handleAddItem(item)}
                   >
                     <span>{item.name}</span>
-                    <span>â‚¬{item.price.toFixed(2)}</span>
+                    <span>{item.price.toFixed(2)} €</span>
                   </button>
                 ))}
               </div>
@@ -316,7 +315,7 @@ function CreateOrderPage({ addOrder }) {
 				/>
 
                   
-                <span>â‚¬{(item.price * item.quantity).toFixed(2)}</span>
+                <span>{(item.price * item.quantity).toFixed(2)} €</span>
 				</div>
               </li>
             ))}
@@ -326,9 +325,9 @@ function CreateOrderPage({ addOrder }) {
 	  
 	  {orderItems.length>0 &&(
 		<h4 className="mb-4">
-			â‚¬
+			€
 			{orderItems
-				.reduce((sum,item) => sum+item.price*item.quantity,0)
+				.reduce((sum,item) =>  sum+item.price*item.quantity,0)
 				.toFixed(2)
 			}</h4>
 	  )}
