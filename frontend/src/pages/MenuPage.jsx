@@ -1,14 +1,28 @@
+import {useEffect, useState} from 'react'
+import {fetchProducts} from '../services/menuService'
+
 function MenuPage() {
-  const menuItems = [
-    { id: 1, name: 'Margherita Pizza', price: 8.99 },
-    { id: 2, name: 'Cheeseburger', price: 10.5 },
-    { id: 3, name: 'Caesar Salad', price: 7.25 },
-    { id: 4, name: 'Spaghetti Bolognese', price: 12.0 },
-  ]
+  const [menuItems, setMenuItems] = useState([])
+  const [menuError, setMenuError] = useState('')
+
+  useEffect(() => {
+    const loadMenu = async () => {
+      try {
+        const products = await fetchProducts()
+        setMenuItems(products.filter((product) => product.isAvailable))
+      } catch (error) {
+        console.error('Error fetching menu:', error)
+        setMenuError('Unable to load menu. Please try again.')
+      }
+    }
+
+    loadMenu()
+  }, [])
 
   return (
     <div className="container mt-4">
       <h1>Menu</h1>
+      {menuError && <div className="alert alert-danger">{menuError}</div>}
       <ul className="list-group mt-3">
         {menuItems.map((item) => (
           <li

@@ -19,8 +19,7 @@ function CreateOrderPage({ addOrder }) {
 
   const navigate = useNavigate()
   
-      
- // const tables=['1','2','3','4','5','6','7']
+
  
    useEffect(()=> {
   
@@ -174,7 +173,7 @@ function CreateOrderPage({ addOrder }) {
 	isSavingRef.current = true
 
 	try{
-		  await addOrder(newOrder)
+		await addOrder(newOrder)
 		navigate('/')
 	}catch(error){
 		  console.error('Error creating order: ', error)
