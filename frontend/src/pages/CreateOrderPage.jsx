@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchTables } from '../services/tableService'
+import { fetchProducts } from '../services/menuService'
 
 function CreateOrderPage({ addOrder }) {
   const [step, setStep]= useState('table')
@@ -8,6 +9,9 @@ function CreateOrderPage({ addOrder }) {
   const [tables, setTables] = useState([])
   const [tablesError, setTablesError] = useState('')
   const [isLoadingTables, setIsLoadingTables] = useState(true)
+  const [products, setProducts] = useState([])
+  const [productsError, setProductsError] = useState('')
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [orderItems, setOrderItems] = useState([])
   const [saveError, setSaveError] = useState('')
@@ -31,27 +35,31 @@ function CreateOrderPage({ addOrder }) {
     loadTables()
   }, [])
 
-  const menuData = {
-    Starters: [
-      { id: 1, name: 'Greek Salad', price: 8.0 },
-      { id: 2, name: 'Caesar Salad', price: 7.25 },
-      { id: 3, name: 'Bruschetta', price: 6.5 },
-    ],
-    Main: [
-      { id: 4, name: 'Margherita Pizza', price: 8.99 },
-      { id: 5, name: 'Cheeseburger', price: 10.5 },
-      { id: 6, name: 'Spaghetti Bolognese', price: 12.0 },
-    ],
-    Drinks: [
-      { id: 7, name: 'Cola', price: 2.5 },
-      { id: 8, name: 'Water', price: 1.5 },
-      { id: 9, name: 'Orange Juice', price: 3.0 },
-    ],
-  }
-  
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts()
+        if (!Array.isArray(data)) {
+          throw new Error('The menu service returned an invalid response.')
+        }
+        setProducts(data)
+      } catch (error) {
+        console.error('Error fetching products:', error)
+        setProductsError('Unable to load menu products. Please try again.')
+      } finally {
+        setIsLoadingProducts(false)
+      }
+    }
 
-  
-  const categories = Object.keys(menuData)
+    loadProducts()
+  }, [])
+
+  const categories = [...new Set(
+    products.map((product) => product.category?.trim()).filter(Boolean)
+  )]
+  const filteredProducts = products.filter(
+    (product) => product.category?.trim() === selectedCategory
+  )
   
   const handleSelectTable = (tableItem) => {
 	  setSaveError('')
@@ -74,6 +82,7 @@ function CreateOrderPage({ addOrder }) {
 		setOrderItems([
 			...orderItems,
 			{
+				menuItemId: itemToAdd.id,
 				name: itemToAdd.name,
 				price: itemToAdd.price,
 				quantity: 1,
@@ -228,8 +237,13 @@ function CreateOrderPage({ addOrder }) {
 
           <div className="mb-4">
             <h3>Categories</h3>
+            {isLoadingProducts && <p>Loading menu...</p>}
+            {productsError && <div className="alert alert-danger" role="alert">{productsError}</div>}
+            {!isLoadingProducts && !productsError && categories.length === 0 && (
+              <p>No product categories found.</p>
+            )}
             <div className="d-flex gap-2 flex-wrap">
-              {categories.map((category) => (
+              {!isLoadingProducts && !productsError && categories.map((category) => (
                 <button
                   key={category}
                   type="button"
@@ -248,11 +262,13 @@ function CreateOrderPage({ addOrder }) {
 
           <div className="mb-4">
             <h3>Items</h3>
-            {!selectedCategory ? (
+            {isLoadingProducts || productsError ? null : !selectedCategory ? (
               <p>Select a category first.</p>
+            ) : filteredProducts.length === 0 ? (
+              <p>No products found in this category.</p>
             ) : (
               <div className="list-group">
-                {menuData[selectedCategory].map((item) => (
+                {filteredProducts.map((item) => (
                   <button
                     key={item.id}
                     type="button"
@@ -260,7 +276,7 @@ function CreateOrderPage({ addOrder }) {
                     onClick={() => handleAddItem(item)}
                   >
                     <span>{item.name}</span>
-                    <span>€{item.price.toFixed(2)}</span>
+                    <span>€{Number(item.price).toFixed(2)}</span>
                   </button>
                 ))}
               </div>
