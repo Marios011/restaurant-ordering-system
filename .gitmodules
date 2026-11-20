@@ -10,3 +10,6 @@
 [submodule "api-gateway"]
 	path = api-gateway
 	url = https://github.com/Marios011/api-gateway.git
+[submodule "auth-service"]
+	path = auth-service
+	url = https://github.com/Marios011/auth-service.git
